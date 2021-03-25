@@ -1,3 +1,5 @@
+# This is basic code to generate a map of NFL teams for a given year
+# Libraries ####
 library(ggplot2)
 library(ggmap)
 library(ggimage)
@@ -8,50 +10,26 @@ library(geosphere)
 library(tidyverse)
 library(dplyr)
 
-# USA map with state borders
+# Data ####
+# USA map with state borders data
 states <- map_data("state")
-basicOutline <- ggplot() + 
-  geom_polygon(data = states, aes(x=long, y = lat, group = group), fill = NA, 
-               color = "black") + 
-  coord_fixed(1.3) + 
-  theme(panel.grid = element_blank(),
-        panel.background = element_blank(),
-        axis.title = element_blank(),
-        axis.text = element_blank(),
-        axis.ticks.y = element_blank(),
-        axis.ticks = element_blank(),
-        plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5),
-        legend.position = "none")
-        # legend.position = c(0.2,0.1),
-        # legend.direction = "vertical",
-        # legend.key = element_rect(fill = NA))
 
-
-# Teams
+# Teams since merger (1970)
 teams <- read.csv(url("https://raw.githubusercontent.com/matthewglen/mappingNFL/main/teams.csv"))
 
-teams <- read_csv("/Users/mattglen/Documents/Mapping NFL Teams/teams.csv")
-
+# Specify a specific year to test
 testYear <- teams %>%
   filter(Year == "2020")
 
-distinct(teams,Division,Colour)
-
-# Plot teams
-basicOutline +
-  # With divisional lines
-  geom_line(data= testYear, aes(x = Long, y = Lat, group = Division), color = teams$Division) +
-  # With team logos
-  geom_image(data = testYear, aes(x = Long, y = Lat, image = Logo), size = 0.04) +
-  labs(title = "Location of NFL Teams - ??Year??",
-      subtitle = "Based on home stadium",
-      caption = "Note: some teams are slightly off location to prevent overlap\n@mattglen_\ngithub.com/matthewglen")
-
-ggplot(testYear, aes(x = Long, y = Lat)) +
+# Plotting ####
+# Plot the location data, coloured by the division
+ggplot(testYear, aes(x = Long, y = Lat, color = Division)) +
+  # Plot a blank map of the US
   geom_polygon(data = states, aes(x=long, y = lat, group = group), fill = NA, 
                color = "black") +
+  #3 Fix the co-ordinates so it looks the right sort of shape
   coord_fixed(1.3) + 
+  # Theme elements to make it look map like
   theme(panel.grid = element_blank(),
         panel.background = element_blank(),
         axis.title = element_blank(),
@@ -60,18 +38,17 @@ ggplot(testYear, aes(x = Long, y = Lat)) +
         axis.ticks = element_blank(),
         plot.title = element_text(hjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5),
-        legend.position = c(0.2,0.1),
+        legend.position = c(0.2,0),
         legend.direction = "vertical",
         legend.key = element_rect(fill = NA)) + 
-  geom_line(aes(group = Division), color = testYear$Colour) +
-  geom_point(data = testYear, aes(x = Long, y = Lat), size = 0.04) +
-  geom_image(data = testYear, aes(x = Long, y = Lat, image = Logo), size = 0.04) +
+  # Split the legend to two columns
+  guides(color=guide_legend(ncol=2)) + 
+  # Add lines connecting the location points, group by pos
+  geom_line(aes(group = Division)) +
+  # Add the team logos
+  geom_image(data = testYear, aes(x = Long, y = Lat, image = Logo, colour = NULL), size = 0.04) +
+  # Map labels
   labs(title = "Location of NFL Teams - ??Year??",
        subtitle = "Based on home stadium",
-       caption = "Note: some teams are slightly off location to prevent overlap\n@mattglen_\ngithub.com/matthewglen") +
-  scale_color_manual(labels = c("AFC East","AFC Central","AFC West","NFC East",
-                     "NFC Central","NFC West","AFC North","AFC South",
-                     "NFC North","NFC South"),
-                     values = c("Blue","Orange","Green","Red","Yellow","Purple",
-                               "Orange","Pink","Yellow","Grey"))
+       caption = "Note: some teams are slightly off location to prevent overlap\n@mattglen_\ngithub.com/matthewglen")
       
