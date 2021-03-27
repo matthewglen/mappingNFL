@@ -14,12 +14,12 @@ library(dplyr)
 # USA map with state borders data
 states <- map_data("state")
 
-# Teams since merger (1970)
-teams <- read.csv(url("https://raw.githubusercontent.com/matthewglen/mappingNFL/main/teams.csv"))
+# Teams since merger (1970). Some locations adjusted to map without overlapping
+teams <- read.csv(url("https://raw.githubusercontent.com/matthewglen/mappingNFL/main/data/teams_adjusted.csv"))
 
 # Specify a specific year to test
 testYear <- teams %>%
-  filter(Year == "2020")
+  filter(Year == "2015")
 
 # Plotting ####
 # Plot the location data, coloured by the division
@@ -51,4 +51,6 @@ ggplot(testYear, aes(x = Long, y = Lat, color = Division)) +
   labs(title = "Location of NFL Teams - ??Year??",
        subtitle = "Based on home stadium",
        caption = "Note: some teams are slightly off location to prevent overlap\n@mattglen_\ngithub.com/matthewglen")
-      
+
+# Save as a .png file in the current working directory
+ggsave(paste(2015,".png",sep = ""),dpi=300)

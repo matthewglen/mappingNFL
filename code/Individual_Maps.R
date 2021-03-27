@@ -13,8 +13,8 @@ library(dplyr)
 # USA map with state borders data
 states <- map_data("state")
 
-# Teams since merger (1970)
-teams <- read.csv(url("https://raw.githubusercontent.com/matthewglen/mappingNFL/main/teams.csv"))
+# Teams since merger (1970). Some locations adjusted to map without overlapping
+teams <- read.csv(url("https://raw.githubusercontent.com/matthewglen/mappingNFL/main/data/teams_adjusted.csv"))
 
 # Generating plots ####
 for (y in unique(teams$Year)) {
